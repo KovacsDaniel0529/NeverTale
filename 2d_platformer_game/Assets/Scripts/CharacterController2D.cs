@@ -1,16 +1,17 @@
 using UnityEngine;
 using UnityEngine.Events;
+using System.Collections;
 
 public class CharacterController2D : MonoBehaviour
 {
-	[SerializeField] private float m_JumpForce = 400f;							// Amount of force added when the player jumps.
-	[Range(0, 1)] [SerializeField] private float m_CrouchSpeed = .36f;			// Amount of maxSpeed applied to crouching movement. 1 = 100%
-	[Range(0, .3f)] [SerializeField] private float m_MovementSmoothing = .05f;	// How much to smooth out the movement
-	[SerializeField] private bool m_AirControl = false;							// Whether or not a player can steer while jumping;
-	[SerializeField] private LayerMask m_WhatIsGround;							// A mask determining what is ground to the character
-	[SerializeField] private Transform m_GroundCheck;							// A position marking where to check if the player is grounded.
-	[SerializeField] private Transform m_CeilingCheck;							// A position marking where to check for ceilings
-	[SerializeField] private Collider2D m_CrouchDisableCollider;				// A collider that will be disabled when crouching
+	[SerializeField] private float m_JumpForce = 400f;                          // Amount of force added when the player jumps.
+	[Range(0, 1)][SerializeField] private float m_CrouchSpeed = .36f;           // Amount of maxSpeed applied to crouching movement. 1 = 100%
+	[Range(0, .3f)][SerializeField] private float m_MovementSmoothing = .05f;   // How much to smooth out the movement
+	[SerializeField] private bool m_AirControl = false;                         // Whether or not a player can steer while jumping;
+	[SerializeField] private LayerMask m_WhatIsGround;                          // A mask determining what is ground to the character
+	[SerializeField] private Transform m_GroundCheck;                           // A position marking where to check if the player is grounded.
+	[SerializeField] private Transform m_CeilingCheck;                          // A position marking where to check for ceilings
+	[SerializeField] private Collider2D m_CrouchDisableCollider;                // A collider that will be disabled when crouching
 
 	const float k_GroundedRadius = .2f; // Radius of the overlap circle to determine if grounded
 	private bool m_Grounded;            // Whether or not the player is grounded.
@@ -23,12 +24,15 @@ public class CharacterController2D : MonoBehaviour
 	[Space]
 
 	public UnityEvent OnLandEvent;
+	public HealthBar healthBar;
+	public int coolOff = 0;
 
 	[System.Serializable]
 	public class BoolEvent : UnityEvent<bool> { }
 
 	public BoolEvent OnCrouchEvent;
 	private bool m_wasCrouching = false;
+
 
 	private void Awake()
 	{
@@ -39,6 +43,13 @@ public class CharacterController2D : MonoBehaviour
 
 		if (OnCrouchEvent == null)
 			OnCrouchEvent = new BoolEvent();
+	}
+	private void Update()
+	{
+		if (coolOff > 0)
+		{
+			coolOff--;
+		}
 	}
 
 	private void FixedUpdate()
@@ -92,7 +103,8 @@ public class CharacterController2D : MonoBehaviour
 				// Disable one of the colliders when crouching
 				if (m_CrouchDisableCollider != null)
 					m_CrouchDisableCollider.enabled = false;
-			} else
+			}
+			else
 			{
 				// Enable the collider when not crouching
 				if (m_CrouchDisableCollider != null)
@@ -132,8 +144,7 @@ public class CharacterController2D : MonoBehaviour
 		}
 	}
 
-
-	private void Flip()
+    private void Flip()
 	{
 		// Switch the way the player is labelled as facing.
 		m_FacingRight = !m_FacingRight;
@@ -142,5 +153,41 @@ public class CharacterController2D : MonoBehaviour
 		Vector3 theScale = transform.localScale;
 		theScale.x *= -1;
 		transform.localScale = theScale;
+	}
+
+	public void OnTriggerEnter2D(Collider2D collision)
+	{
+		// Valamiért duplázza a damge-et, és a heal-t
+		// Erre figyelj oda
+		if (collision.tag == "trap")
+		{
+			int cooloffwait = 100;
+            if (coolOff == 0)
+            {
+				healthBar.Damage(12.5);
+				coolOff = cooloffwait;
+			}
+		}
+		if (collision.tag == "melon")
+		{
+			healthBar.Heal(37.5);
+			Destroy (GameObject.FindWithTag("melon"));
+		}
+		if (collision.tag == "banana")
+		{
+			healthBar.Heal(25);
+			Destroy(GameObject.FindWithTag("banana"));
+		}
+		if (collision.tag == "apple")
+		{
+			healthBar.Heal(12.5);
+			Destroy(GameObject.FindWithTag("apple"));
+		}
+		if (collision.tag == "cherry")
+		{
+			healthBar.Heal(12.5);
+			Destroy(GameObject.FindWithTag("cherry"));
+		}
+
 	}
 }

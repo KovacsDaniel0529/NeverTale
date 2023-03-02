@@ -18,4 +18,17 @@ public class PlayerRespawn : MonoBehaviour
             RespawnNow();
         }
     }
+    public void RespawnOnDead()
+    {
+        if (Health.totalHealth == 0)
+        {
+            RespawnNow();
+            Health.totalHealth = 100;
+        }
+    }
+    void Update()
+    {
+        RespawnOnDead();
+
+    }
 }
