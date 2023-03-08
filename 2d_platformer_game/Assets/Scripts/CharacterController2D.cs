@@ -19,6 +19,9 @@ public class CharacterController2D : MonoBehaviour
 	private bool m_FacingRight = true;  // For determining which way the player is currently facing.
 	private Vector3 m_Velocity = Vector3.zero;
 
+	public HealthBar healthBar;
+	public int spikeDamaheCoolOff;
+
 	[Header("Events")]
 	[Space]
 
@@ -39,6 +42,15 @@ public class CharacterController2D : MonoBehaviour
 
 		if (OnCrouchEvent == null)
 			OnCrouchEvent = new BoolEvent();
+	}
+
+	private void Update()
+	{
+		if (spikeDamaheCoolOff > 0)
+		{
+			spikeDamaheCoolOff--;
+		}
+		healthBar.ChangeHealthBarStage();
 	}
 
 	private void FixedUpdate()
@@ -142,5 +154,41 @@ public class CharacterController2D : MonoBehaviour
 		Vector3 theScale = transform.localScale;
 		theScale.x *= -1;
 		transform.localScale = theScale;
+	}
+
+	public void OnTriggerEnter2D(Collider2D collision)
+	{
+		// Valamiért duplázza a damge-et, és a heal-t
+		// Erre figyelj oda
+		if (collision.tag == "trap")
+		{
+			int cooloffwait = 100;
+			if (spikeDamaheCoolOff == 0)
+			{
+				healthBar.Damage(25);
+				spikeDamaheCoolOff = cooloffwait;
+			}
+		}
+		if (collision.tag == "melone")
+		{
+			healthBar.Heal(75);
+			Destroy(GameObject.FindWithTag("melone"));
+		}
+		if (collision.tag == "banana")
+		{
+			healthBar.Heal(25);
+			Destroy(GameObject.FindWithTag("banana"));
+		}
+		if (collision.tag == "apple")
+		{
+			healthBar.Heal(25);
+			Destroy(GameObject.FindWithTag("apple"));
+		}
+		if (collision.tag == "cherry")
+		{
+			healthBar.Heal(25);
+			Destroy(GameObject.FindWithTag("cherry"));
+		}
+		Debug.Log("Szia te rákos csicska fejû");
 	}
 }
