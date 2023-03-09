@@ -6,11 +6,6 @@ TagManager:
   tags:
   - Ground
   - Death
-  - trap
-  - melone
-  - banana
-  - apple
-  - cherry
   layers:
   - Default
   - TransparentFX
